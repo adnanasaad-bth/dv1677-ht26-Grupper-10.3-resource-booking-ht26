@@ -1,0 +1,24 @@
+<%- include('includes/header'); %>
+    <h2>Redigera bokning</h2>
+    <form method="POST" action="/bookings/<%= booking.id %>" class="booking-form">
+        <input type="hidden" name="_method" value="PUT" />
+        <input type="hidden" name="resource_id" value="<%= booking.resource_id %>" />
+
+        <label for="user">Användare</label>
+        <input type="text" name="user" value="<%= booking.user || '' %>" required />
+
+        <label for="start_time">Starttid</label>
+        <input type="datetime-local" name="start_time" value="<%= (booking.start_time || '').replace(' ', 'T') %>" required />
+
+        <label for="end_time">Sluttid</label>
+        <input type="datetime-local" name="end_time" value="<%= (booking.end_time || '').replace(' ', 'T') %>" required />
+
+        <label for="status">Status</label>
+        <select name="status">
+            <option value="confirmed" <%= booking.status === 'confirmed' ? 'selected' : '' %>>Bekräftad</option>
+            <option value="cancelled" <%= booking.status === 'cancelled' ? 'selected' : '' %>>Avbokad</option>
+        </select>
+
+        <input type="submit" value="Spara" />
+    </form>
+<%- include('includes/footer'); %>
