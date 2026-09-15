@@ -64,6 +64,10 @@ main {
     border-radius: 4px;
     padding: 1rem 1.4rem;
     margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
 .resource-card h3 a {
@@ -81,11 +85,20 @@ main {
     margin-bottom: 0;
 }
 
+.btn-edit {
+    flex-shrink: 0;
+    margin-bottom: 0;
+}
+
 .booking-card {
     background-color: #f9f9f9;
     border-left: 4px solid #2ECC40;
     padding: 0.8rem 1.2rem;
     margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
 .booking-card p {
@@ -118,7 +131,8 @@ main {
 }
 
 input,
-textarea {
+textarea,
+select {
     margin-bottom: 1.4rem;
     font-size: 1rem;
     padding: 0.8rem;

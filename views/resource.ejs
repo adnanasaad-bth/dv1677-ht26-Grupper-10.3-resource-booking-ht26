@@ -2,6 +2,7 @@
     <h2><%= resource.name %></h2>
     <p><%= resource.type %> — <%= resource.description %></p>
     <p>Kapacitet: <%= resource.capacity %></p>
+    <a href="/resources/<%= resource.id %>/edit" class="btn">Redigera resurs</a>
 
     <h3>Bokningar</h3>
     <% if (bookings.length === 0) { %>
@@ -9,9 +10,12 @@
     <% } %>
     <% bookings.forEach(function(b){ %>
         <div class="booking-card">
-            <p><strong><%= b.user %></strong></p>
-            <p><%= b.start_time %> — <%= b.end_time %></p>
-            <p class="status"><%= b.status %></p>
+            <div class="booking-card-body">
+                <p><strong><%= b.user %></strong></p>
+                <p><%= b.start_time %> — <%= b.end_time %></p>
+                <p class="status"><%= b.status %></p>
+            </div>
+            <a href="/bookings/<%= b.id %>/edit" class="btn btn-edit">Redigera</a>
         </div>
     <% }); %>
 
