@@ -13,7 +13,7 @@ const resources = {
         ).run(body.name, body.type, body.description, body.capacity || 1);
         return { lastID: result.lastInsertRowid };
     },
-    updateresource: async function updateresource(id, body) {
+    updateOne: async function updateOne(id, body) {
         const result = db.prepare(
             'UPDATE resources SET name = ?, type = ?, description = ?, capacity = ? WHERE id = ?'
         ).run(body.name, body.type, body.description, body.capacity || 1, id);
