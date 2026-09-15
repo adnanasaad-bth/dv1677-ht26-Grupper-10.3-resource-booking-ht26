@@ -64,6 +64,10 @@ main {
     border-radius: 4px;
     padding: 1rem 1.4rem;
     margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
 }
 
 .resource-card h3 a {
@@ -78,6 +82,11 @@ main {
 .resource-meta {
     color: #666;
     font-size: 0.9rem;
+    margin-bottom: 0;
+}
+
+.btn-edit {
+    flex-shrink: 0;
     margin-bottom: 0;
 }
 

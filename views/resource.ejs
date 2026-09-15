@@ -2,6 +2,7 @@
     <h2><%= resource.name %></h2>
     <p><%= resource.type %> — <%= resource.description %></p>
     <p>Kapacitet: <%= resource.capacity %></p>
+    <a href="/resources/<%= resource.id %>/edit" class="btn">Redigera resurs</a>
 
     <h3>Bokningar</h3>
     <% if (bookings.length === 0) { %>

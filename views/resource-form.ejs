@@ -1,6 +1,9 @@
 <%- include('includes/header'); %>
     <h2><%= resource.id ? 'Redigera resurs' : 'Ny resurs' %></h2>
-    <form method="POST" action="/resources" class="resource-form">
+    <form method="POST" action="<%= resource.id ? '/resources/' + resource.id : '/resources' %>" class="resource-form">
+        <% if (resource.id) { %>
+            <input type="hidden" name="_method" value="PUT" />
+        <% } %>
         <label for="name">Namn</label>
         <input type="text" name="name" value="<%= resource.name || '' %>" placeholder="VM-01" required />
 
