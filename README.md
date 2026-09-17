@@ -1,49 +1,25 @@
-# Proxmox Booking HT26
+# Rapport
 
-Starter-repo för DV1677 JavaScript-baserade webbramverk HT26.
+## Namn 
+Adnan Asaad
 
-Ett alternativt projekt – ett server-renderat bokningssystem för resurser
-(t.ex. virtuella maskiner i Proxmox), byggt med Express och SQLite. Under
-kursens gång byggs det om/refaktoreras.
+## Projektval
+Bokningssystem
 
-## Krav
+## Teknikval 
+Jag tänker välja React, då det är väldigt populärt på marknaden just nu, och jag vill gärna lära mig saker som är relevanta i dagens marknad. Vad jag kom fram till är att det är väl dokumenterat, så det är ett plus.
 
-> **OBS: Kräver Node.js 22.23 eller högre.**
-> `better-sqlite3` använder nativa binärer kompilerade för en specifik Node-version — äldre 22.x (t.ex. 22.11) ger `Segmentation fault` vid start.
->
-> Uppgradera med nvm:
-> ```bash
-> nvm install 22.23
-> nvm use 22.23
-> ```
 
-## Kom igång
 
-```bash
-npm install
-```
+## Tillvägagångssätt
+### Vecka 1-2
+Jag ska jobba själv och valde Bokningssystem för att jag tycker att det känns mer avancerat än Texteditor. Jag kan kanske ha fel, men för mig känns det som att jag kan bygga vidare på Bokningssystemet.
 
-Skapa en `.env`-fil utifrån exemplet:
+Jag började med att få en uppfattning om hur allt hänger ihop genom att gå igenom koden. När jag kände att jag börjat förstå lite, skapade jag en fork av repot och bjöd in Mattias till forken.
 
-```bash
-cp .env.example .env
-```
+Att fixa PUT-routen var lite utmanande, jag har inte jobbat med JavaScript på jättelänge.
+Ni kan se i koden att det finns en liten bugg som tog lite tid för mig att fixa, men det löste sig till slut.
+Det var en bra refresh på minnet så att jag kan ha bättre grepp på resten av kursen.
 
-Starta applikationen:
-
-```bash
-npm start
-```
-
-Öppna sedan `http://localhost:3000`
-
-## Env-variabler
-
-`PORT` - porten som Express lyssnar på -> `3000`
-
-## Teknikstack
-
-- [Node](https://nodejs.org)
-- [Express](https://expressjs.com)
-- [SQLite](https://www.sqlite.org) (byts ut mot MongoDB)
-- [EJS](https://ejs.co) (byts ut mot frontend-ramverk)
+#### Säkerhetsgranskning
+Repot hade 4 sårbarheter, alla inte så allvarliga. Två av dem löste sig genom att köra npm audit fix, och de sista två behövde jag överrida qs-versionen i package.json och sedan köra npm install för att kunna lösa de sista 2 sårbarheterna.

@@ -3,6 +3,7 @@ import express from 'express';
 import path from 'path';
 import morgan from 'morgan';
 import cors from 'cors';
+import methodOverride from 'method-override';
 import resources from "./resources.mjs";
 import bookings from "./bookings.mjs";
 
@@ -14,6 +15,13 @@ app.set("view engine", "ejs");
 app.use(express.static(path.join(process.cwd(), "public")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride((req) => {
+    if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+        const method = req.body._method;
+        delete req.body._method;
+        return method;
+    }
+}));
 app.use(cors());
 
 if (process.env.NODE_ENV !== 'test') {
@@ -48,6 +56,14 @@ app.get('/resources/:id/edit', async (req, res) => {
     });
 });
 
+app.put('/resources/:id', async (req, res) => {
+    const result = await resources.updateOne(req.params.id, req.body);
+    if (req.is('application/json')) {
+        return res.json(result);
+    }
+    return res.redirect(`/resources/${req.params.id}`);
+});
+
 app.delete('/resources/:id', async (req, res) => {
     const result = await resources.deleteOne(req.params.id);
     return res.json(result);
@@ -57,6 +73,20 @@ app.delete('/resources/:id', async (req, res) => {
 
 app.post('/bookings', async (req, res) => {
     await bookings.addOne(req.body);
+    return res.redirect(`/resources/${req.body.resource_id}`);
+});
+
+app.get('/bookings/:id/edit', async (req, res) => {
+    return res.render("booking-form", {
+        booking: await bookings.getOne(req.params.id)
+    });
+});
+
+app.put('/bookings/:id', async (req, res) => {
+    const result = await bookings.updateOne(req.params.id, req.body);
+    if (req.is('application/json')) {
+        return res.json(result);
+    }
     return res.redirect(`/resources/${req.body.resource_id}`);
 });
 
