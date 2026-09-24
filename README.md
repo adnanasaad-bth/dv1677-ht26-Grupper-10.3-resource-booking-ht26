@@ -23,4 +23,3 @@ Det var en bra refresh på minnet så att jag kan ha bättre grepp på resten av
 
 #### Säkerhetsgranskning
 Repot hade 4 sårbarheter, alla inte så allvarliga. Två av dem löste sig genom att köra npm audit fix, och de sista två behövde jag överrida qs-versionen i package.json och sedan köra npm install för att kunna lösa de sista 2 sårbarheterna.
-test
