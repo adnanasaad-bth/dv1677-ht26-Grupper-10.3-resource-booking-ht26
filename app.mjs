@@ -30,8 +30,8 @@ if (process.env.NODE_ENV !== 'test') {
 
 // --- Resurser ---
 
-app.get('/', async (req, res) => {
-    return res.render("index", { resources: await resources.getAll() });
+app.get('/resources', async (req, res) => {
+    return res.json(await resources.getAll());
 });
 
 app.get('/resources/new', async (req, res) => {
@@ -39,15 +39,12 @@ app.get('/resources/new', async (req, res) => {
 });
 
 app.post('/resources', async (req, res) => {
-    await resources.addOne(req.body);
-    return res.redirect('/');
+    const result = await resources.addOne(req.body);
+    return res.status(201).json(result);
 });
 
 app.get('/resources/:id', async (req, res) => {
-    const resource = await resources.getOne(req.params.id);
-    const resourceBookings = await bookings.getByResource(req.params.id);
-
-    return res.render("resource", { resource, bookings: resourceBookings });
+    return res.json(await resources.getOne(req.params.id));
 });
 
 app.get('/resources/:id/edit', async (req, res) => {
@@ -58,10 +55,7 @@ app.get('/resources/:id/edit', async (req, res) => {
 
 app.put('/resources/:id', async (req, res) => {
     const result = await resources.updateOne(req.params.id, req.body);
-    if (req.is('application/json')) {
-        return res.json(result);
-    }
-    return res.redirect(`/resources/${req.params.id}`);
+    return res.json(result);
 });
 
 app.delete('/resources/:id', async (req, res) => {
@@ -72,8 +66,8 @@ app.delete('/resources/:id', async (req, res) => {
 // --- Bokningar ---
 
 app.post('/bookings', async (req, res) => {
-    await bookings.addOne(req.body);
-    return res.redirect(`/resources/${req.body.resource_id}`);
+    const result = await bookings.addOne(req.body);
+    return res.status(201).json(result);
 });
 
 app.get('/bookings/:id/edit', async (req, res) => {
@@ -84,10 +78,7 @@ app.get('/bookings/:id/edit', async (req, res) => {
 
 app.put('/bookings/:id', async (req, res) => {
     const result = await bookings.updateOne(req.params.id, req.body);
-    if (req.is('application/json')) {
-        return res.json(result);
-    }
-    return res.redirect(`/resources/${req.body.resource_id}`);
+    return res.json(result);
 });
 
 app.delete('/bookings/:id', async (req, res) => {
