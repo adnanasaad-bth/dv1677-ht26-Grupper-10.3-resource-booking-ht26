@@ -1,27 +1,50 @@
-import db from './db/database.mjs';
+import db, { toObjectId, withId } from './db/database.mjs';
+
+const collection = db.collection('resources');
 
 const resources = {
     getAll: async function getAll() {
-        return db.prepare('SELECT * FROM resources').all();
+        const docs = await collection.find().toArray();
+        return docs.map(withId);
     },
     getOne: async function getOne(id) {
-        return db.prepare('SELECT * FROM resources WHERE id = ?').get(id) || {};
+        const _id = toObjectId(id);
+        if (!_id) {
+            return {};
+        }
+        return withId(await collection.findOne({ _id }));
     },
     addOne: async function addOne(body) {
-        const result = db.prepare(
-            'INSERT INTO resources (name, type, description, capacity) VALUES (?, ?, ?, ?)'
-        ).run(body.name, body.type, body.description, body.capacity || 1);
-        return { lastID: result.lastInsertRowid };
+        const result = await collection.insertOne({
+            name: body.name,
+            type: body.type,
+            description: body.description,
+            capacity: parseInt(body.capacity) || 1
+        });
+        return { lastID: result.insertedId.toString() };
     },
     updateOne: async function updateOne(id, body) {
-        const result = db.prepare(
-            'UPDATE resources SET name = ?, type = ?, description = ?, capacity = ? WHERE id = ?'
-        ).run(body.name, body.type, body.description, body.capacity || 1, id);
-        return { changes: result.changes };
+        const _id = toObjectId(id);
+        if (!_id) {
+            return { changes: 0 };
+        }
+        const result = await collection.updateOne({ _id }, {
+            $set: {
+                name: body.name,
+                type: body.type,
+                description: body.description,
+                capacity: parseInt(body.capacity) || 1
+            }
+        });
+        return { changes: result.modifiedCount };
     },
     deleteOne: async function deleteOne(id) {
-        const result = db.prepare('DELETE FROM resources WHERE id = ?').run(id);
-        return { changes: result.changes };
+        const _id = toObjectId(id);
+        if (!_id) {
+            return { changes: 0 };
+        }
+        const result = await collection.deleteOne({ _id });
+        return { changes: result.deletedCount };
     }
 };
 

@@ -1,29 +1,54 @@
-import db from './db/database.mjs';
+import db, { toObjectId, withId } from './db/database.mjs';
+
+const collection = db.collection('bookings');
 
 const bookings = {
     getByResource: async function getByResource(resourceId) {
-        return db.prepare(
-            'SELECT * FROM bookings WHERE resource_id = ? ORDER BY start_time'
-        ).all(resourceId);
+        const docs = await collection
+            .find({ resource_id: resourceId })
+            .sort({ start_time: 1 })
+            .toArray();
+        return docs.map(withId);
     },
     getOne: async function getOne(id) {
-        return db.prepare('SELECT * FROM bookings WHERE id = ?').get(id) || {};
+        const _id = toObjectId(id);
+        if (!_id) {
+            return {};
+        }
+        return withId(await collection.findOne({ _id }));
     },
     addOne: async function addOne(body) {
-        const result = db.prepare(
-            'INSERT INTO bookings (resource_id, user, start_time, end_time, status) VALUES (?, ?, ?, ?, ?)'
-        ).run(body.resource_id, body.user, body.start_time, body.end_time, 'confirmed');
-        return { lastID: result.lastInsertRowid };
+        const result = await collection.insertOne({
+            resource_id: body.resource_id,
+            user: body.user,
+            start_time: body.start_time,
+            end_time: body.end_time,
+            status: 'confirmed'
+        });
+        return { lastID: result.insertedId.toString() };
     },
     updateOne: async function updateOne(id, body) {
-        const result = db.prepare(
-            'UPDATE bookings SET user = ?, start_time = ?, end_time = ?, status = ? WHERE id = ?'
-        ).run(body.user, body.start_time, body.end_time, body.status, id);
-        return { changes: result.changes };
+        const _id = toObjectId(id);
+        if (!_id) {
+            return { changes: 0 };
+        }
+        const result = await collection.updateOne({ _id }, {
+            $set: {
+                user: body.user,
+                start_time: body.start_time,
+                end_time: body.end_time,
+                status: body.status
+            }
+        });
+        return { changes: result.modifiedCount };
     },
     deleteOne: async function deleteOne(id) {
-        const result = db.prepare('DELETE FROM bookings WHERE id = ?').run(id);
-        return { changes: result.changes };
+        const _id = toObjectId(id);
+        if (!_id) {
+            return { changes: 0 };
+        }
+        const result = await collection.deleteOne({ _id });
+        return { changes: result.deletedCount };
     }
 };
 

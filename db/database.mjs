@@ -1,65 +1,50 @@
-import Database from 'better-sqlite3';
-import { existsSync, mkdirSync } from 'fs';
+import { MongoClient, ObjectId } from 'mongodb';
 
-if (!existsSync('./db')) {
-    mkdirSync('./db');
-}
+const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/';
+const dbName = process.env.NODE_ENV === 'test'
+    ? `${process.env.DATABASE_NAME || 'jsramverk'}_test`
+    : process.env.DATABASE_NAME || 'jsramverk';
 
-const dbFilename = process.env.NODE_ENV === 'test'
-    ? './db/test.db'
-    : './db/bookings.db';
+const client = new MongoClient(uri);
+await client.connect();
 
-const db = new Database(dbFilename);
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+const db = client.db(dbName);
 
-db.exec(`
-    CREATE TABLE IF NOT EXISTS resources (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        type TEXT,
-        description TEXT,
-        capacity INTEGER DEFAULT 1
-    )
-`);
-
-db.exec(`
-    CREATE TABLE IF NOT EXISTS bookings (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        resource_id INTEGER NOT NULL,
-        user TEXT NOT NULL,
-        start_time TEXT NOT NULL,
-        end_time TEXT NOT NULL,
-        status TEXT DEFAULT 'confirmed',
-        FOREIGN KEY (resource_id) REFERENCES resources(id)
-    )
-`);
-
-const count = db.prepare("SELECT COUNT(*) AS n FROM resources").get().n;
+const count = await db.collection('resources').countDocuments();
 
 if (count === 0) {
-    const seed = db.transaction(() => {
-        db.prepare(
-            "INSERT INTO resources (name, type, description, capacity) VALUES (?, ?, ?, ?)"
-        ).run("VM-01", "vm", "Ubuntu 24.04 – 4 vCPU, 8 GB RAM", 1);
+    const { insertedIds } = await db.collection('resources').insertMany([
+        { name: "VM-01", type: "vm", description: "Ubuntu 24.04 – 4 vCPU, 8 GB RAM", capacity: 1 },
+        { name: "VM-02", type: "vm", description: "Debian 12 – 2 vCPU, 4 GB RAM", capacity: 1 },
+        { name: "GPU-server-1", type: "gpu", description: "NVIDIA T4 – för ML-arbetsbelastningar", capacity: 1 },
+    ]);
 
-        db.prepare(
-            "INSERT INTO resources (name, type, description, capacity) VALUES (?, ?, ?, ?)"
-        ).run("VM-02", "vm", "Debian 12 – 2 vCPU, 4 GB RAM", 1);
+    await db.collection('bookings').insertMany([
+        {
+            resource_id: insertedIds[0].toString(),
+            user: "anna@student.bth.se",
+            start_time: "2026-09-15 08:00",
+            end_time: "2026-09-15 12:00",
+            status: "confirmed"
+        },
+        {
+            resource_id: insertedIds[1].toString(),
+            user: "erik@student.bth.se",
+            start_time: "2026-09-15 13:00",
+            end_time: "2026-09-15 17:00",
+            status: "confirmed"
+        },
+    ]);
+}
 
-        db.prepare(
-            "INSERT INTO resources (name, type, description, capacity) VALUES (?, ?, ?, ?)"
-        ).run("GPU-server-1", "gpu", "NVIDIA T4 – för ML-arbetsbelastningar", 1);
+// Gör om ett id från URL:en till ObjectId, eller null om det är ogiltigt
+export function toObjectId(id) {
+    return ObjectId.isValid(id) ? new ObjectId(id) : null;
+}
 
-        db.prepare(
-            "INSERT INTO bookings (resource_id, user, start_time, end_time, status) VALUES (?, ?, ?, ?, ?)"
-        ).run(1, "anna@student.bth.se", "2026-09-15 08:00", "2026-09-15 12:00", "confirmed");
-
-        db.prepare(
-            "INSERT INTO bookings (resource_id, user, start_time, end_time, status) VALUES (?, ?, ?, ?, ?)"
-        ).run(2, "erik@student.bth.se", "2026-09-15 13:00", "2026-09-15 17:00", "confirmed");
-    });
-    seed();
+// Lägger till fältet "id" så att vyerna fungerar som med SQLite
+export function withId(doc) {
+    return doc ? { ...doc, id: doc._id.toString() } : {};
 }
 
 export default db;
