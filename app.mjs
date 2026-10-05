@@ -34,10 +34,6 @@ app.get('/resources', async (req, res) => {
     return res.json(await resources.getAll());
 });
 
-app.get('/resources/new', async (req, res) => {
-    return res.render("resource-form", { resource: {} });
-});
-
 app.post('/resources', async (req, res) => {
     const result = await resources.addOne(req.body);
     return res.status(201).json(result);
@@ -47,10 +43,8 @@ app.get('/resources/:id', async (req, res) => {
     return res.json(await resources.getOne(req.params.id));
 });
 
-app.get('/resources/:id/edit', async (req, res) => {
-    return res.render("resource-form", {
-        resource: await resources.getOne(req.params.id)
-    });
+app.get('/resources/:id/bookings', async (req, res) => {
+    return res.json(await bookings.getByResource(req.params.id));
 });
 
 app.put('/resources/:id', async (req, res) => {
@@ -70,10 +64,8 @@ app.post('/bookings', async (req, res) => {
     return res.status(201).json(result);
 });
 
-app.get('/bookings/:id/edit', async (req, res) => {
-    return res.render("booking-form", {
-        booking: await bookings.getOne(req.params.id)
-    });
+app.get('/bookings/:id', async (req, res) => {
+    return res.json(await bookings.getOne(req.params.id));
 });
 
 app.put('/bookings/:id', async (req, res) => {
