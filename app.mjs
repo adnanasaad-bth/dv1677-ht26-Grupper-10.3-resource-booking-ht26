@@ -35,47 +35,80 @@ app.get('/resources', async (req, res) => {
 });
 
 app.post('/resources', async (req, res) => {
+    if (!req.body.name) {
+        return res.status(400).json({ error: 'Fältet name saknas' });
+    }
     const result = await resources.addOne(req.body);
     return res.status(201).json(result);
 });
 
 app.get('/resources/:id', async (req, res) => {
-    return res.json(await resources.getOne(req.params.id));
+    const resource = await resources.getOne(req.params.id);
+    if (!resource.id) {
+        return res.status(404).json({ error: 'Resursen hittades inte' });
+    }
+    return res.json(resource);
 });
 
 app.get('/resources/:id/bookings', async (req, res) => {
+    const resource = await resources.getOne(req.params.id);
+    if (!resource.id) {
+        return res.status(404).json({ error: 'Resursen hittades inte' });
+    }
     return res.json(await bookings.getByResource(req.params.id));
 });
 
 app.put('/resources/:id', async (req, res) => {
     const result = await resources.updateOne(req.params.id, req.body);
+    if (result.changes === 0) {
+        return res.status(404).json({ error: 'Resursen hittades inte' });
+    }
     return res.json(result);
 });
 
 app.delete('/resources/:id', async (req, res) => {
     const result = await resources.deleteOne(req.params.id);
-    return res.json(result);
+    if (result.changes === 0) {
+        return res.status(404).json({ error: 'Resursen hittades inte' });
+    }
+    return res.status(204).end();
 });
 
 // --- Bokningar ---
 
 app.post('/bookings', async (req, res) => {
+    const { resource_id, start_time, end_time } = req.body;
+    if (!resource_id || !start_time || !end_time) {
+        return res.status(400).json({
+            error: 'Fälten resource_id, start_time och end_time krävs'
+        });
+    }
     const result = await bookings.addOne(req.body);
     return res.status(201).json(result);
 });
 
 app.get('/bookings/:id', async (req, res) => {
-    return res.json(await bookings.getOne(req.params.id));
+    const booking = await bookings.getOne(req.params.id);
+    if (!booking.id) {
+        return res.status(404).json({ error: 'Bokningen hittades inte' });
+    }
+    return res.json(booking);
 });
 
 app.put('/bookings/:id', async (req, res) => {
     const result = await bookings.updateOne(req.params.id, req.body);
+    if (result.changes === 0) {
+        return res.status(404).json({ error: 'Bokningen hittades inte' });
+    }
     return res.json(result);
 });
 
 app.delete('/bookings/:id', async (req, res) => {
     const result = await bookings.deleteOne(req.params.id);
-    return res.json(result);
+    if (result.changes === 0) {
+        return res.status(404).json({ error: 'Bokningen hittades inte' });
+    }
+    return res.status(204).end();
 });
 
 app.listen(port, () => {

@@ -40,7 +40,7 @@ const bookings = {
                 status: body.status
             }
         });
-        return { changes: result.modifiedCount };
+        return { changes: result.matchedCount };
     },
     deleteOne: async function deleteOne(id) {
         const _id = toObjectId(id);

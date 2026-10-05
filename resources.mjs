@@ -36,7 +36,7 @@ const resources = {
                 capacity: parseInt(body.capacity) || 1
             }
         });
-        return { changes: result.modifiedCount };
+        return { changes: result.matchedCount };
     },
     deleteOne: async function deleteOne(id) {
         const _id = toObjectId(id);
