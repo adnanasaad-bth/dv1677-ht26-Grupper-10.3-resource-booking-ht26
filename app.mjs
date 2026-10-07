@@ -1,9 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
-import path from 'path';
 import morgan from 'morgan';
 import cors from 'cors';
-import methodOverride from 'method-override';
 import resources from "./resources.mjs";
 import bookings from "./bookings.mjs";
 
@@ -12,17 +10,7 @@ const app = express();
 
 app.disable('x-powered-by');
 app.use(cors());
-app.set("view engine", "ejs");
-app.use(express.static(path.join(process.cwd(), "public")));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride((req) => {
-    if (req.body && typeof req.body === 'object' && '_method' in req.body) {
-        const method = req.body._method;
-        delete req.body._method;
-        return method;
-    }
-}));
 
 if (process.env.NODE_ENV !== 'test') {
     app.use(morgan('combined'));
